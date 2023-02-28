@@ -1,1 +1,0 @@
-name = "#{TF_VAR_STORAGE_ACCOUNT_NAME}#"

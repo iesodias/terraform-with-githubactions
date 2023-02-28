@@ -1,12 +1,19 @@
+# Como executar Terraform usando o Github Actions
+
+1. Criar uma conta no Azure
+2. Criar uma conta no Github
+3. Instalar o terraform localmente para validar os manifestos
+4. Criar um repositório no Github
+
 ## Step 1 - Gerar roles com permissao para criar os recursos no Azure
 
-```powershell
+```bash
 az ad sp create-for-rbac --name SERVICE_PRINCIPAL --role Contributor --scopes /subscriptions/SUBSCRIPTION_ID
 ```
 
 ### Result:
 
-```
+```bash
 {
 "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
 "displayName": "Pay-As-You-Go",
