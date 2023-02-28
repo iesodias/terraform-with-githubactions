@@ -144,7 +144,14 @@ var.tfvars
 name = "#{TF_VAR_STORAGE_ACCOUNT_NAME}#"
 ```
 
-```githubactions
+Criar diretorios
+
+```bash
+mkdir -p .github/workflows
+touch deploy.yaml
+```
+
+```yaml
 name: 'terraform-deploy'
 on: 
   push:
