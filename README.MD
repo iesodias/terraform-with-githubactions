@@ -39,6 +39,8 @@ az ad sp create-for-rbac --name SERVICE_PRINCIPAL --role Contributor --scopes /s
 ## Step 3 - Criar infra para o backend
 
 ```
+mkdir terraform-manifest
+touch main.tf variables.tf
 terraform -chdir=terraform-manifest init
 terraform -chdir=terraform-manifest plan
 terraform -chdir=terraform-manifest apply -auto-approve
@@ -97,6 +99,15 @@ variable "containername" {
 }
 ```
 
+## Step 5 - Criar os seguintes diretório e arquivos
+
+```bash
+mkdir manifest
+touch main.tf variables.tf var.tfvars
+```
+
+## Step 6 - Preencher os respectivos arquivos com o conteudo abaixo:
+
 main.tf
 ```terraform
 terraform {
@@ -151,12 +162,15 @@ var.tfvars
 name = "#{TF_VAR_STORAGE_ACCOUNT_NAME}#"
 ```
 
-Criar diretorios
+# Step 7 - Criando a Pipeline
+
+### Criar diretorios
 
 ```bash
 mkdir -p .github/workflows
 touch deploy.yaml
 ```
+### Conteudo arquivo deploy.yaml
 
 ```yaml
 name: 'terraform-deploy'
