@@ -1,0 +1,78 @@
+name: 'terraform-deploy'
+on: 
+  push:
+    branches: [ "none" ]
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'StorageAccount Name'
+        required: true
+        default: ''
+
+jobs:
+  TerraformApply:
+    name: 'TerraformApply'
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+      ARM_ACCESS_KEY: ${{ secrets.ARM_ACCESS_KEY }}
+      TF_VAR_STORAGE_ACCOUNT_NAME: ${{ github.event.inputs.name}}
+    runs-on: ubuntu-latest
+    #environment: production
+ 
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - uses: cschleiden/replace-tokens@v1
+      with:
+        tokenPrefix: '#{'
+        tokenSuffix: '}#'
+        files: '["**/*.tfvars"]'
+    - name: Terraform Init
+      run: |
+        terraform -chdir=manifest/ init
+    - name: Terraform Validate
+      run: terraform -chdir=manifest/ validate -no-color
+    - name: Terraform Plan
+      run: terraform -chdir=manifest/ plan -var-file=var.tfvars -no-color -input=false
+      continue-on-error: true
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+    - name: Terraform Apply
+      run: terraform -chdir=manifest/ apply -var-file=var.tfvars -auto-approve -no-color -input=false
+      continue-on-error: true
+
+  TerraformDestroy:
+    name: 'Terraform Destroy'
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+      ARM_ACCESS_KEY: ${{ secrets.ARM_ACCESS_KEY }}
+      TF_VAR_STORAGE_ACCOUNT_NAME: ${{ github.event.inputs.name}}
+    needs: [TerraformApply]
+    environment: 
+      name: EnvApproval
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - uses: cschleiden/replace-tokens@v1
+      with:
+        tokenPrefix: '#{'
+        tokenSuffix: '}#'
+        files: '["**/*.tfvars"]'
+    - name: Terraform Apply
+      run: |
+        terraform -chdir=manifest/ init
+        terraform -chdir=manifest/ plan -var-file=var.tfvars -no-color
+        sleep 30
+        terraform -chdir=manifest/ destroy -var-file=var.tfvars -auto-approve -no-color
