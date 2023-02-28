@@ -1,6 +1,6 @@
 ## Step 1 - Gerar roles com permissao para criar os recursos no Azure
 
-```
+```powershell
 az ad sp create-for-rbac --name SERVICE_PRINCIPAL --role Contributor --scopes /subscriptions/SUBSCRIPTION_ID
 ```
 
@@ -39,7 +39,7 @@ terraform -chdir=terraform-manifest apply -auto-approve
 ## Step 4 - Criar o main.tf
 
 main.tf
-```
+```terraform
 # Configure Azure Provider
 provider "azurerm" {
   features {}
@@ -67,7 +67,7 @@ resource "azurerm_storage_container" "example" {
 ## Step 4 - Criar arquivo de variaveis do tf
 
 variables.tf
-```
+```terraform
 variable "name" {
   type    = string
   default = "rg-terraform-github-actions-state"
@@ -128,7 +128,7 @@ resource "azurerm_resource_group" "my_demo_rg1" {
 ```
 
 variables.tf
-```
+```terraform
 variable "name" {
   type    = string
 }
@@ -140,6 +140,6 @@ variable "location" {
 ```
 
 var.tfvars
-```
+```terraform
 name = "#{TF_VAR_STORAGE_ACCOUNT_NAME}#"
 ```
